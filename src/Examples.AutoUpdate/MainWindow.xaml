@@ -6,7 +6,17 @@
         xmlns:local="clr-namespace:Examples.AutoUpdate"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    
+    <Window.DataContext>
+        <local:MainWindowViewModel />
+    </Window.DataContext>
 
+    <Grid>
+        <TextBlock>
+            인터넷: <Run Text="{Binding IsNetworkAvailable, Mode=OneWay}" /><LineBreak />
+            현재 버전: <Run Text="{Binding CurrentVersion, Mode=OneWay}" /><LineBreak />
+            최신 버전: <Run Text="{Binding LatestVersion, Mode=OneWay}" /><LineBreak />
+            업데이트 가능: <Run Text="{Binding IsLatestVersion, Mode=OneWay}" />
+        </TextBlock>
     </Grid>
 </Window>
