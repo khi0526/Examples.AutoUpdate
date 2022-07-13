@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Examples.AutoUpdate;
 
@@ -47,11 +49,15 @@ public class MainWindowViewModel : ViewModelBase
     private bool _isNetworkAvailable = NetworkInterface.GetIsNetworkAvailable();
     private Version? _currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
     private Version? _latestVersion;
+    private string? _currentState;
 
     public MainWindowViewModel()
     {
         NetworkChange.NetworkAvailabilityChanged += (s, e) => IsNetworkAvailable = e.IsAvailable;
+        CheckLatestVersionCommand = new(CheckUpdate);
     }
+
+    public Command CheckLatestVersionCommand { get; set; }
 
     public bool IsNetworkAvailable
     {
@@ -71,10 +77,33 @@ public class MainWindowViewModel : ViewModelBase
         set => SetProperty(ref _latestVersion, value, () => RaisePropertyChanged(nameof(IsLatestVersion)));
     }
 
-    public bool IsLatestVersion => _latestVersion is null || (_currentVersion?.Equals(_latestVersion) ?? false);
+    public bool IsLatestVersion => _latestVersion is not null || (_currentVersion?.Equals(_latestVersion) ?? false);
 
-    private void CheckUpdate()
+    public string? CurrentState
     {
+        get => _currentState;
+        set => SetProperty(ref _currentState, value);
+    }
 
+    private async void CheckUpdate()
+    {
+        var version = await GetLatestVersion();
+        LatestVersion = version;
+        if (version is null)
+        {
+            CurrentState = "No Release";
+        }
+    }
+
+    private static async ValueTask<Version?> GetLatestVersion()
+    {
+        var github = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("khi0526"));
+        var releases = await github.Repository.Release.GetAll("khi0526", "Examples.AutoUpdate");
+        if (!releases.Any())
+        {
+            return null;
+        }
+
+        return new Version(releases[0].TagName);
     }
 }

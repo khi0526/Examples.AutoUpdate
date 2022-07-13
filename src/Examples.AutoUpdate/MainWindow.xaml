@@ -11,12 +11,14 @@
         <local:MainWindowViewModel />
     </Window.DataContext>
 
-    <Grid>
+    <StackPanel>
         <TextBlock>
             인터넷: <Run Text="{Binding IsNetworkAvailable, Mode=OneWay}" /><LineBreak />
             현재 버전: <Run Text="{Binding CurrentVersion, Mode=OneWay}" /><LineBreak />
             최신 버전: <Run Text="{Binding LatestVersion, Mode=OneWay}" /><LineBreak />
-            업데이트 가능: <Run Text="{Binding IsLatestVersion, Mode=OneWay}" />
+            업데이트 가능: <Run Text="{Binding IsLatestVersion, Mode=OneWay}" /><LineBreak />
+            상태: <Run Text="{Binding CurrentState, Mode=OneWay}" />
         </TextBlock>
-    </Grid>
+        <Button Height="30" Command="{Binding CheckLatestVersionCommand}" />
+    </StackPanel>
 </Window>
